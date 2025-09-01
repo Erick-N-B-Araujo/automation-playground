@@ -1,83 +1,62 @@
-import { useState, useEffect } from "react";
-import axios from "axios";
-
-const API = "http://localhost:4000/api";
-
-function App() {
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-  const [token, setToken] = useState(null);
-  const [products, setProducts] = useState([]);
-  const [cart, setCart] = useState([]);
-
-  const login = async () => {
-    try {
-      const res = await axios.post(`${API}/auth/login`, { username, password });
-      setToken(res.data.token);
-    } catch {
-      alert("Invalid credentials");
-    }
-  };
-
-  const register = async () => {
-    try {
-      await axios.post(`${API}/auth/register`, { username, password });
-      alert("Registered successfully");
-    } catch {
-      alert("User already exists");
-    }
-  };
-
-  const loadProducts = async () => {
-    const res = await axios.get(`${API}/products`);
-    setProducts(res.data);
-  };
-
-  const addToCart = async (id) => {
-    const res = await axios.post(`${API}/cart`, { username, productId: id });
-    setCart(res.data);
-  };
-
-  const loadCart = async () => {
-    const res = await axios.get(`${API}/cart/${username}`);
-    setCart(res.data);
-  };
-
+import { Routes, Route, useLocation, useNavigate } from 'react-router-dom';
+import { useEffect, useMemo, useState } from 'react';
+import Header from './components/Header';
+import Home from './pages/Home';
+import ProductDetail from './pages/ProductDetail';
+import Cart from './pages/Cart';
+import Checkout from './pages/Checkout';
+import Login from './pages/Login';
+import Register from './pages/Register';
+import Recover from './pages/Recover';
+import Profile from './pages/Profile';
+import Admin from './pages/Admin';
+import { http, setToken } from './api';
+export default function App() {
+  const loc = useLocation();
+  const nav = useNavigate();
+  const [user, setUser] = useState(null);
+  const [q, setQ] = useState('');
   useEffect(() => {
-    loadProducts();
+    const token = localStorage.getItem('token');
+    const username = localStorage.getItem('username');
+    if (token) { setToken(token); setUser({ username }); }
+    14
   }, []);
-
+  const handleLogout = async () => {
+    try { await http.post('/auth/logout'); } catch { }
+    localStorage.removeItem('token');
+    localStorage.removeItem('username');
+    setToken(null);
+    setUser(null);
+  };
+  const onSearch = (term) => {
+    const url = new URL(window.location.href);
+    url.searchParams.set('q', term);
+    window.history.pushState({}, '', url.toString());
+    setQ(term);
+  };
+  const searchParams = useMemo(() => new URLSearchParams(loc.search),
+    [loc.search]);
   return (
-    <div style={{ padding: "2rem" }}>
-      {!token ? (
-        <div>
-          <h2>Login/Register</h2>
-          <input placeholder="User" value={username} onChange={e => setUsername(e.target.value)} />
-          <input placeholder="Pass" type="password" value={password} onChange={e => setPassword(e.target.value)} />
-          <button onClick={login}>Login</button>
-          <button onClick={register}>Register</button>
-        </div>
-      ) : (
-        <div>
-          <h2>Welcome, {username}</h2>
-          <h3>Products</h3>
-          <ul>
-            {products.map(p => (
-              <li key={p.id}>
-                {p.name} - ${p.price}
-                <button onClick={() => addToCart(p.id)}>Add</button>
-              </li>
-            ))}
-          </ul>
-          <h3>Your Cart</h3>
-          <button onClick={loadCart}>Refresh</button>
-          <ul>
-            {cart.map((c, i) => <li key={i}>{c.name}</li>)}
-          </ul>
-        </div>
-      )}
-    </div>
+    <>
+      <Header onSearch={onSearch} user={user} onLogout={handleLogout} />
+      <div className="container">
+        <Routes>
+          <Route path="/" element={<Home searchParams={searchParams}
+            onAdd={(id) => http.post('/cart/add', { productId: id }).then(() => nav('/cart'))} />} /
+          >
+          <Route path="/product/:id" element={<ProductDetail
+            onAdd={(id) => http.post('/cart/add', { productId: id }).then(() => nav('/cart'))} />} /
+          >
+          <Route path="/cart" element={<Cart />} />
+          <Route path="/checkout" element={<Checkout />} />
+          <Route path="/login" element={<Login onLogin={(u) => setUser(u)} />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/recover" element={<Recover />} />
+          <Route path="/profile" element={<Profile />} />
+          <Route path="/admin" element={<Admin />} />
+        </Routes>
+      </div>
+    </>
   );
 }
-
-export default App;

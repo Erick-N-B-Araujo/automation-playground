@@ -5,15 +5,22 @@ services:
     build: ./backend
     container_name: automation-backend
     ports:
-      - "4000:4000"
+    - "4000:4000"
+    environment:
+    - NODE_ENV=development
+    # Flags para bugs intencionais
+    - BUG_LOGOUT_UA_ONLY=true
+    - BUG_WEAK_REQUIRED_VALIDATION=true
+    - BUG_CART_GHOST_REMOVAL=true
     volumes:
-      - ./backend:/app
-      - /app/node_modules
-    working_dir: /app
-    command: ["npm", "start"]
+    - ./backend:/app
+    - /app/node_modules
+
 
   frontend:
     build: ./frontend
     container_name: automation-frontend
     ports:
-      - "3000:80"
+    - "3000:80"
+    depends_on:
+    - backend

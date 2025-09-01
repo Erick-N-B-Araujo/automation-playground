@@ -1,0 +1,7 @@
+[
+{ "id": 1, "name": "Smart TV 50\" Automation", "price": 2599.9, "brand": "PlayQA", "category": "TVs", "rating": 4.6, "stock": 12, "desc": "4K, HDR10, Wi-Fi" },
+{ "id": 2, "name": "Notebook Cypress 14\"", "price": 3999.0, "brand": "AutoWare", "category": "Notebooks", "rating": 4.4, "stock": 7, "desc": "i5, 16GB, 512GB SSD" },
+{ "id": 3, "name": "Headset Selenium Pro", "price": 399.9, "brand": "AssertSound", "category": "Acessórios", "rating": 4.2, "stock": 30, "desc": "Surround 7.1" },
+{ "id": 4, "name": "Mouse Playwright RGB", "price": 199.9, "brand": "PX", "category": "Acessórios", "rating": 4.1, "stock": 20, "desc": "12.000 DPI" },
+{ "id": 5, "name": "Teclado Robot MK", "price": 299.9, "brand": "RF", "category": "Acessórios", "rating": 4.0, "stock": 15, "desc": "Hot-swap Blue" }
+]
