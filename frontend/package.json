@@ -2,6 +2,7 @@
   "name": "automation-playground-frontend",
   "version": "1.0.0",
   "scripts": {
+    "start": "vite --host",
     "dev": "vite",
     "build": "vite build",
     "serve": "vite preview"

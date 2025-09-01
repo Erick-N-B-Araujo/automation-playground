@@ -1,18 +1,13 @@
-# Imagem base
-FROM node:18-alpine
-
-# Diretório de trabalho
+# Etapa 1 - Build
+FROM node:18-alpine as build
 WORKDIR /app
-
-# Copiar package.json e instalar dependências
-COPY package*.json ./
+COPY package.json ./
 RUN npm install
-
-# Copiar o restante do código
 COPY . .
+RUN npm run build
 
-# Expor porta (Vite dev server)
-EXPOSE 3000
-
-# Comando de start (modo dev)
-CMD ["npm", "run", "dev", "--", "--host"]
+# Etapa 2 - Nginx
+FROM nginx:alpine
+COPY --from=build /app/dist /usr/share/nginx/html
+EXPOSE 80
+CMD ["nginx", "-g", "daemon off;"]
